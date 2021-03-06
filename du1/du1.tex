@@ -53,4 +53,23 @@ We have $\sigma \in K(C)$ where $C = V_f, f = y^2-x^3+1$. $\sigma = \frac{x-1+(f
 =\frac{y(x-1)+(f)}{(x-1)(x^2+x+1)+(f)} = \frac{y + (f)}{x^2+x+1+(f)}
 \end{gather*}
 We have expressed $\sigma$ using a different representative $\frac{y}{x^2+x+1}$. Clearly the denominator is not $0$ at point $(1,0)$ which means $\sigma$ is defined at $(1,0)$ and $\sigma(1,0)=0$.
+
+\section{}
+From ex. 1) we know that the polynomial $f(x,y) = y^2-x^3+1 \in K[x,y]$ is irreducible over $K$. We also know that this happens if and only if $F(X,Y,Z) = Y^2Z-X^3+Z^3 \in K[X,Y,Z]$ is irreducible over $K$. 
+
+Denote $g(x,y) = x^3+x+y^3 \in K[x,y]$ and it's corresponding homogenized polynomial as $G(X,Y,Z) = X^3+XZ^2-Y^3$. Denote by $\psi$ an automorphism of the ring $K[X,Y,Z]$ s.t. $\psi(a(X,Y,Z)) \mapsto a(Y,Z,X)$ ($\psi$ just permutes the variables). $\psi$ is clearly an automorphism from the definition since it only permutes the variables and therefore it must map irreducible polynomials upon irreducible polynomials. Now we observe that $\psi(F) = G$. $F$ is irreducible and therefore also $G$ is irreducible which is irreducible iff $g$ is irreducible.
+\begin{gather*}
+\frac{\partial g}{\partial x} = 3x^2+1\\
+\frac{\partial g}{\partial y} = 3y^2
+\end{gather*}
+
+Set $D=V_g$. To have a singularity we need $y=0$. The points of $D$ with $y=0$ are such that for their $x$ coordinate it must be that $x^3+x=0 \iff x(x^2+1)=0$. This gives us at most 3 potential points. The number of points depends on the existence of $a \in K$ s.t. $a^2 = -1$. 
+
+Point $(0,0)$ which exists always is not a singular point since the partial derivative w.r.t. $x$ is not $0$.
+
+Now assuming there exists $a \in K$ s.t. $a^2=-1$ we have $2$ other points of $P_{1,2}=(\pm a, 0) \in D$. The partial derivative w.r.t. $x$ is $3a^2+1 = -3+1 = -2$. If char$(K)\neq 2$ we see that $D$ is smooth.
+
+A projective version of $D$ ($\hat{D} = V_G$) has also a point at infinity $(1:1:0)$ which is smooth assuming char$(K)\neq 3$.
+
+To sum it up: $D$ is a smooth affine curve $\iff$ char$(K) \neq 2$ and $\hat{D}$ is a smooth projective curve $\iff$ char$(K)\notin \{2,3\}$.
 \end{document} 
