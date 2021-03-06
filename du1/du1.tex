@@ -1,0 +1,56 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8x]{inputenc}
+\usepackage{indentfirst} %indentace prvního odstavce
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{subfig}
+\usepackage{float}
+\usepackage[czech]{babel}
+\usepackage{mathdots}
+\usepackage{slashbox}
+
+\begin{document}
+\begin{center}
+\large ...
+
+\normalsize Jan Oupický
+\end{center}
+\vspace{1\baselineskip}
+
+\section{}
+Hmmmm asi jo?
+
+\section{}
+The set mentioned corresponds to a curve $C= V_f$ where $f=y^2-x^3+1$. From ex. 1) we know this polynomial is irreducible in $K$. By definition $C$ is an irreducible planar curve.
+\begin{gather*}
+\frac{\partial f}{\partial x} (x,y) = -3x^2\\
+\frac{\partial f}{\partial x} (x,y) = 2y
+\end{gather*}
+
+First we consider char$(K) \notin \{2,3\}$. To achieve singularity $y$ has to be $0$. The only points on the curve that have $y$ coordinate equal to $0$ are the 3rd roots of unity in $K$. We also need to have $-3x^2 = 0$ but this is impossible since the 3rd roots of unity are not $0$ in $K$ by definition.
+
+Now assuming char$(K) \in \{2,3\}$ we see that for each case we get one partial derivative to be 0 at all points. From that we can conclude that we only need to find a point with $x=0$ (for char$(K)=2$) or with $y=0$ for char$(K)=3$. We can calculate the corresponding point on the curve from the polynomial which defines the curve.
+
+Therefore the affine curve is singular iff char$(K) \in \{2,3\}$.
+
+The projective curve is given by $F= Y^2Z-X^3+Z^3$. There exist only one point in $\hat{C} = V_F$ s.t. $Z = 0$ (the point at infinity) and it has coordinates $\mathcal{O} = (0:1:0)$ since if we set $Z=0$ then $X$ has to be $0$ as well and $Y$ has to be nonzero (for it to be a point in $\mathbb{P}^2$).
+\begin{gather*}
+\frac{\partial F}{\partial X} (X,Y,Z) = -3X^2\\
+\frac{\partial F}{\partial Y} (X,Y,Z) = 2YZ\\
+\frac{\partial F}{\partial Z} (X,Y,Z) = Y^2+3Z^2
+\end{gather*}
+We can see that the partial derivative w.r.t. $Z$ is not $0$ if we plug in $\mathcal{O}$. This shows that if char$(K)$ is not 2 or 3 the projective curve is also smooth since we have shown it is smooth at all affine points studying the affine curve and shown smoothness at the only projective point which does not correspond to an affine point,
+
+\section{}
+We have $\sigma \in K(C)$ where $C = V_f, f = y^2-x^3+1$. $\sigma = \frac{x-1+(f)}{y+(f)}$. By definition of $K(C)$ this equality holds $y^2+(f)=x^3-1+(f)$ in $K(C)$.
+\begin{gather*}
+\frac{x-1+(f)}{y+(f)} = \frac{y(x-1)+(f)}{y^2+(f)} = \frac{y(x-1)+(f)}{x^3-1+(f)} = \\
+=\frac{y(x-1)+(f)}{(x-1)(x^2+x+1)+(f)} = \frac{y + (f)}{x^2+x+1+(f)}
+\end{gather*}
+We have expressed $\sigma$ using a different representative $\frac{y}{x^2+x+1}$. Clearly the denominator is not $0$ at point $(1,0)$ which means $\sigma$ is defined at $(1,0)$ and $\sigma(1,0)=0$.
+\end{document} 
