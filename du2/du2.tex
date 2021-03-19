@@ -1,0 +1,59 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8x]{inputenc}
+\usepackage{indentfirst} %indentace prvního odstavce
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{subfig}
+\usepackage{float}
+\usepackage[czech]{babel}
+\usepackage{mathdots}
+
+\begin{document}
+\begin{center}
+\large NMMB430 - DÚ 2
+
+\normalsize Jan Oupický
+\end{center}
+\vspace{1\baselineskip}
+
+\section{}
+We know $xR = 37\cdot 100 = 3700 \equiv 48$ (mod $83$). Similarly $yR = 5000 \equiv 20$ (mod $83$).
+\begin{enumerate}
+\item $xR \cdot yR = 48\cdot 20 = 960$. Now we apply $B.1$ for $x = 960$. We assume we know that $q = - 83^{-1} = 53$ (mod $100$). Compute $u = 960\cdot 53 = 50880 \equiv 80$ (mod $100$). Poté víme, že $y = \frac{80\cdot 83 + 960}{100} = 76 = xyR$ (mod $83$).
+
+\item As in $1)$ we know $xR\cdot yR = 960$. Using the notation introduced in the lecture we have $x = 960 = 9\cdot 10^2 + 6 \cdot 10$ i.e. $x_0 = 0, x_1 = 6, x_2 = 9$. We need to determine $q' = -83^{-1}$ (mod $10$) we can easily see $q' = -3^{-1} = -7 = 3$ (mod $10$).
+
+We have to do 2 iterations for $i = 0,1$. Now $i=0$:
+\begin{gather*}
+u = 0\cdot 3 = 0 \text{ (mod }10\text{)}\\
+x = 960+0\\
+\end{gather*}
+
+And for $i=1$:
+\begin{gather*}
+u = 6\cdot 3 = 8 \text{ (mod }10\text{)}\\
+x = 960+83\cdot 8 \cdot 10 = 7600\\
+\end{gather*}
+And now $y = \frac{7600}{100} = 76$ same as in $1)$.
+
+\item Now we have $x = 4\cdot 10 + 8$ and $y = 2\cdot 10 + 0$ i.e. $x_1=4, x_0=8, y_1 = 2, y_0 = 0$. Set $z=0$ and for $i=0$:
+\begin{gather*}
+u = (0+ 8\cdot 0)3 = 0 \text{ (mod }10\text{)}\\
+z = \frac{0+8\cdot 20 + 83\cdot 0}{10} = \frac{160}{10} = 16
+\end{gather*}
+Now $z=16$ and $i=1$:
+\begin{gather*}
+u = (6+ 4\cdot 0)3 = 8 \text{ (mod }10\text{)}\\
+z = \frac{16+4\cdot 20 + 83\cdot 3}{10} = \frac{760}{10} = 76
+\end{gather*}
+The result is the same as in the 2 previous cases. We now know $xyR = 37\cdot50\cdot100 \equiv 76$ (mod $83$). But we want to calculate $xy$ (mod $83$) so we apply Montgomery reduction on $76$ with $R=100, p=83$. We will use the same technique as in $1)$ so let $u = 76 \cdot 53 = 4028 \equiv 28$ (mod $100$) and $\frac{28\cdot 83 + 76}{100} = \frac{2400}{100}$ so $xy$ (mod $83$) $= 24$.
+
+\end{enumerate}
+
+
+\end{document} 
