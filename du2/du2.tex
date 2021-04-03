@@ -49,7 +49,7 @@ z = \frac{0+8\cdot 20 + 83\cdot 0}{10} = \frac{160}{10} = 16
 Now $z=16$ and $i=1$:
 \begin{gather*}
 u = (6+ 4\cdot 0)3 = 8 \text{ (mod }10\text{)}\\
-z = \frac{16+4\cdot 20 + 83\cdot 3}{10} = \frac{760}{10} = 76
+z = \frac{16+4\cdot 20 + 83\cdot 8}{10} = \frac{760}{10} = 76
 \end{gather*}
 The result is the same as in the 2 previous cases. We now know $xyR = 37\cdot50\cdot100 \equiv 76$ (mod $83$). But we want to calculate $xy$ (mod $83$) so we apply Montgomery reduction on $76$ with $R=100, p=83$. We will use the same technique as in $1)$ so let $u = 76 \cdot 53 = 4028 \equiv 28$ (mod $100$) and $\frac{28\cdot 83 + 76}{100} = \frac{2400}{100}$ so $xy$ (mod $83$) $= 24$.
 
