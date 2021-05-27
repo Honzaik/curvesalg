@@ -125,8 +125,10 @@ def eigen(l, gamma, gl):
     if gl == 1:
         return False
 
+    fl = getFPoly(l)
+
     exponent = (selectedPrime**2-1) / 2
-    polyToTest = getSPoly(m) * expMod((x**3+a*x+b), Integer(exponent), fl) - getRPoly(m)
+    polyToTest = getSPoly(Integer(gamma)) * expMod((x**3+a*x+b), Integer(exponent), fl) - getRPoly(Integer(gamma))
     res = R(polyToTest) % R(gl)
     print('eigen res:', res)
     return res == 0
@@ -134,12 +136,14 @@ def eigen(l, gamma, gl):
 def equalx(l, gl):
     K = GF(l) 
     ql = selectedPrime % l
-    print(K(ql).is_square())
-    if not K(ql).is_square() or tyzero(l, ql):
+
+    if tyzero(l, ql):
         return 0
 
-    tau = (R(4*ql).sqrt()) % l
-    gamma = (R(2*ql) * R(tau)**(-1)) % l
+    tau = (K(4*ql).sqrt()) % l
+    print(tau, ql, l)
+    gamma = (K(2*ql) * K(tau)**(-1)) % l
+    print(gamma)
     if eigen(l, gamma, gl):
         return tau
     return -tau
@@ -147,6 +151,8 @@ def equalx(l, gl):
 def nonequalx(l, tau):
 
     m = selectedPrime % l
+
+    print('tau:', tau)
 
     fl = getFPoly(l)
     cm = R(getCPoly(m)) % R(fl)
@@ -168,16 +174,14 @@ def nonequalx(l, tau):
     firstX = F(lam**2 - expMod(x,Integer(selectedPrime**2), fl) - x) + (F(cm)/F(dm))
     secondX = F(x**selectedPrime) - (F(ctau(x=x**selectedPrime))/F(dtau(x=x**selectedPrime)))
 
-
     hx = R((firstX - secondX).numerator()) % R(fl)
     if R(fl).gcd(R(hx)) == 1:
         return 0
 
+    firstY = lam * (2 * expMod(x, Integer(selectedPrime**2), fl) - lam**2 + x - F(cm)/F(dm)) - expMod(y, Integer(selectedPrime**2), fl)
+    secondY = expMod(y, Integer(selectedPrime), fl) * F(rtau(x=x**selectedPrime))/F(stau(x=x**selectedPrime))
 
-    return 0
-    hy = 0 % R(fl)
-    
-    
+    hy = R((firstY - secondY).numerator())(y=1) % R(fl)
     if R(fl).gcd(R(hy)) == 1:
         return -1
     return 1
@@ -191,11 +195,12 @@ def schoff():
         tau = 1
     else:
         tau = 0
-    residues = [tau]
-    moduli = [2]
+    residues = [Integer(tau)]
+    moduli = [Integer(l)]
     
     while B < 4*sqrt(selectedPrime):
         l = l.next_prime()
+        print('starting ', l)
         B = B*l
         fl = getFPoly(l)
         sl = R(getSBarPoly(l))
@@ -203,7 +208,7 @@ def schoff():
         sl = sl % R(fl)
         gl = R(fl).gcd(sl)
 
-        if gl == 1:
+        if gl != 1:
             print('equalx')
             tau = equalx(l, gl)
         else:
@@ -213,14 +218,20 @@ def schoff():
             while r != 0:
                 tau += 1
                 r = nonequalx(l, tau)
+                print('r:', r)
             if r == -1:
                 tau = -tau
-        residues.append(tau)
-        moduli.append(l)
+            #if l == 3: # FIX
+            #    tau = 2
+        
+        residues.append(Integer(tau))
+        moduli.append(Integer(l))
 
+    print(residues, moduli)
     trace = crt(residues, moduli)
+    print(trace)
     return selectedPrime+1-trace
 
-print(schoff())
+#trace is 14
 
-print(tyzero(3, 2))
+print(schoff())

@@ -131,8 +131,10 @@ def eigen(l, gamma, gl):
     if gl == _sage_const_1 :
         return False
 
+    fl = getFPoly(l)
+
     exponent = (selectedPrime**_sage_const_2 -_sage_const_1 ) / _sage_const_2 
-    polyToTest = getSPoly(m) * expMod((x**_sage_const_3 +a*x+b), Integer(exponent), fl) - getRPoly(m)
+    polyToTest = getSPoly(Integer(gamma)) * expMod((x**_sage_const_3 +a*x+b), Integer(exponent), fl) - getRPoly(Integer(gamma))
     res = R(polyToTest) % R(gl)
     print('eigen res:', res)
     return res == _sage_const_0 
@@ -140,12 +142,14 @@ def eigen(l, gamma, gl):
 def equalx(l, gl):
     K = GF(l) 
     ql = selectedPrime % l
-    print(K(ql).is_square())
-    if not K(ql).is_square() or tyzero(l, ql):
+
+    if tyzero(l, ql):
         return _sage_const_0 
 
-    tau = (R(_sage_const_4 *ql).sqrt()) % l
-    gamma = (R(_sage_const_2 *ql) * R(tau)**(-_sage_const_1 )) % l
+    tau = (K(_sage_const_4 *ql).sqrt()) % l
+    print(tau, ql, l)
+    gamma = (K(_sage_const_2 *ql) * K(tau)**(-_sage_const_1 )) % l
+    print(gamma)
     if eigen(l, gamma, gl):
         return tau
     return -tau
@@ -154,16 +158,18 @@ def nonequalx(l, tau):
 
     m = selectedPrime % l
 
-    fl = getFPoly(l)
-    cm = R(getCPoly(m)) % R(fl)
-    dm = R(getDPoly(m)) % R(fl)
-    rm = R(getRPoly(m)) % R(fl)
-    sm = R(getSPoly(m)) % R(fl)
+    print('tau:', tau)
 
-    ctau = R(getCPoly(tau)) % R(fl)
-    dtau = R(getDPoly(tau)) % R(fl)
-    rtau = R(getRPoly(tau)) % R(fl)
-    stau = R(getSPoly(tau)) % R(fl)
+    fl = getFPoly(l)
+    cm = R(getCPoly(m))# % R(fl)
+    dm = R(getDPoly(m))# % R(fl)
+    rm = R(getRPoly(m))# % R(fl)
+    sm = R(getSPoly(m))# % R(fl)
+
+    ctau = R(getCPoly(tau))# % R(fl)
+    dtau = R(getDPoly(tau))# % R(fl)
+    rtau = R(getRPoly(tau))# % R(fl)
+    stau = R(getSPoly(tau))# % R(fl)
 
     F = Q.fraction_field()
 
@@ -174,15 +180,14 @@ def nonequalx(l, tau):
     firstX = F(lam**_sage_const_2  - expMod(x,Integer(selectedPrime**_sage_const_2 ), fl) - x) + (F(cm)/F(dm))
     secondX = F(x**selectedPrime) - (F(ctau(x=x**selectedPrime))/F(dtau(x=x**selectedPrime)))
 
-
     hx = R((firstX - secondX).numerator()) % R(fl)
     if R(fl).gcd(R(hx)) == _sage_const_1 :
         return _sage_const_0 
-    print(hx)
-    return _sage_const_0 
-    hy = _sage_const_0  % R(fl)
-    
-    
+
+    firstY = lam * (_sage_const_2  * expMod(x, Integer(selectedPrime**_sage_const_2 ), fl) - lam**_sage_const_2  + x - F(cm)/F(dm)) - expMod(y, Integer(selectedPrime**_sage_const_2 ), fl)
+    secondY = expMod(y, Integer(selectedPrime), fl) * F(rtau(x=x**selectedPrime))/F(stau(x=x**selectedPrime))
+
+    hy = R((firstY - secondY).numerator())(y=_sage_const_1 ) % R(fl)
     if R(fl).gcd(R(hy)) == _sage_const_1 :
         return -_sage_const_1 
     return _sage_const_1 
@@ -196,11 +201,12 @@ def schoff():
         tau = _sage_const_1 
     else:
         tau = _sage_const_0 
-    residues = [tau]
-    moduli = [_sage_const_2 ]
+    residues = [Integer(tau)]
+    moduli = [Integer(l)]
     
     while B < _sage_const_4 *sqrt(selectedPrime):
         l = l.next_prime()
+        print('starting ', l)
         B = B*l
         fl = getFPoly(l)
         sl = R(getSBarPoly(l))
@@ -208,7 +214,7 @@ def schoff():
         sl = sl % R(fl)
         gl = R(fl).gcd(sl)
 
-        if gl == _sage_const_1 :
+        if gl != _sage_const_1 :
             print('equalx')
             tau = equalx(l, gl)
         else:
@@ -218,15 +224,21 @@ def schoff():
             while r != _sage_const_0 :
                 tau += _sage_const_1 
                 r = nonequalx(l, tau)
+                print('r:', r)
             if r == -_sage_const_1 :
                 tau = -tau
-        residues.append(tau)
-        moduli.append(l)
+            #if l == 3: # FIX
+            #    tau = 2
+        
+        residues.append(Integer(tau))
+        moduli.append(Integer(l))
 
+    print(residues, moduli)
     trace = crt(residues, moduli)
+    print(trace)
     return selectedPrime+_sage_const_1 -trace
 
-print(schoff())
+#trace is 14
 
-print(tyzero(_sage_const_3 , _sage_const_2 ))
+print(schoff())
 
