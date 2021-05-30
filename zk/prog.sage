@@ -1,10 +1,21 @@
+import sys
 from sage.all import *
-
 
 selectedPrime = 191
 
 a = 2
 b = 1
+
+'''
+if len(sys.argv) != 4:
+    print('need 4 arguments [a,b,prime]')
+    exit()
+
+a = Integer(sys.argv[1])
+b = Integer(sys.argv[2])
+selectedPrime = Integer(sys.argv[3])
+'''
+
 
 R.<x,y> = PolynomialRing(GF(selectedPrime),2,order='invlex')
 Q.<x,y> = QuotientRing(R,R.ideal(y**2 - x**3 -a*x -b))
@@ -124,7 +135,7 @@ def eigen(l, gamma, gl):
 
     fl = getFPoly(l)
 
-    print(gl)
+    #print(gl)
 
 
     #polyPart = getDPoly(Integer(gamma))*(x**selectedPrime) - x*getDPoly(Integer(gamma)) + getCPoly(Integer(gamma))
@@ -134,9 +145,9 @@ def eigen(l, gamma, gl):
     exponent = (selectedPrime-1) / 2
     polyToTest = getSPoly(Integer(gamma)) * expMod((x**3 + a*x + b), Integer(exponent), fl) - getRPoly(Integer(gamma))
     res = R(polyToTest) % R(gl)
-    print('gcd', R(gl).gcd(R(polyToTest)))
+    #print('gcd', R(gl).gcd(R(polyToTest)))
     #res = R(glNew).gcd(R(polyToTest))
-    print('eigen res:', res)
+    #print('eigen res:', res)
     return res == 0
     
 def equalx(l, gl):
@@ -147,9 +158,9 @@ def equalx(l, gl):
         return 0
 
     tau = (K(4*ql).sqrt())
-    print(tau, ql, l)
+    #print(tau, ql, l)
     gamma = (K(2*ql) * K(tau)**(-1))
-    print(gamma)
+    #print(gamma)
     if eigen(l, gamma, gl):
         return tau
     return -tau
@@ -214,7 +225,7 @@ def schoff():
     while B < 4*sqrt(selectedPrime):
         l = l.next_prime()
         totalMod *= l
-        print('starting ', l)
+        #print('starting ', l)
         B = B*l
         fl = getFPoly(l)
         sl = R(getSBarPoly(l))
@@ -223,28 +234,28 @@ def schoff():
         gl = R(fl).gcd(sl)
 
         if gl != 1:
-            print('equalx')
+            #print('equalx')
             tau = equalx(l, gl)
-            print('returned', tau)
+            #print('returned', tau)
         else:
-            print('not equal x')
+            #print('not equal x')
             r = 0
             tau = 0
             while r == 0:
                 tau += 1
                 r = nonequalx(l, tau)
-                print('r:', r)
+                #print('r:', r)
             if r == -1:
                 tau = -tau
         
         residues.append(Integer(tau))
         moduli.append(Integer(l))
 
-    print(residues, moduli)
+    #print(residues, moduli)
     trace = crt(residues, moduli)
     if trace >= (totalMod/2):
         trace -= totalMod
-    print(trace)
+    #print(trace)
     return selectedPrime+1-trace
 
 #trace is 14

@@ -4,13 +4,24 @@
 from sage.all_cmdline import *   # import sage library
 
 _sage_const_191 = Integer(191); _sage_const_2 = Integer(2); _sage_const_1 = Integer(1); _sage_const_3 = Integer(3); _sage_const_0 = Integer(0); _sage_const_4 = Integer(4); _sage_const_6 = Integer(6); _sage_const_12 = Integer(12); _sage_const_5 = Integer(5); _sage_const_20 = Integer(20); _sage_const_8 = Integer(8); _sage_const_16 = Integer(16)
+import sys
 from sage.all import *
-
 
 selectedPrime = _sage_const_191 
 
 a = _sage_const_2 
 b = _sage_const_1 
+
+
+if len(sys.argv) != 4:
+    print('need 3 arguments [a,b,prime]')
+    exit()
+
+a = Integer(sys.argv[1])
+b = Integer(sys.argv[2])
+selectedPrime = Integer(sys.argv[3])
+
+
 
 R = PolynomialRing(GF(selectedPrime),_sage_const_2 ,order='invlex', names=('x', 'y',)); (x, y,) = R._first_ngens(2)
 Q = QuotientRing(R,R.ideal(y**_sage_const_2  - x**_sage_const_3  -a*x -b), names=('x', 'y',)); (x, y,) = Q._first_ngens(2)
@@ -130,7 +141,7 @@ def eigen(l, gamma, gl):
 
     fl = getFPoly(l)
 
-    print(gl)
+    #print(gl)
 
 
     #polyPart = getDPoly(Integer(gamma))*(x**selectedPrime) - x*getDPoly(Integer(gamma)) + getCPoly(Integer(gamma))
@@ -140,9 +151,9 @@ def eigen(l, gamma, gl):
     exponent = (selectedPrime-_sage_const_1 ) / _sage_const_2 
     polyToTest = getSPoly(Integer(gamma)) * expMod((x**_sage_const_3  + a*x + b), Integer(exponent), fl) - getRPoly(Integer(gamma))
     res = R(polyToTest) % R(gl)
-    print('gcd', R(gl).gcd(R(polyToTest)))
+    #print('gcd', R(gl).gcd(R(polyToTest)))
     #res = R(glNew).gcd(R(polyToTest))
-    print('eigen res:', res)
+    #print('eigen res:', res)
     return res == _sage_const_0 
     
 def equalx(l, gl):
@@ -153,9 +164,9 @@ def equalx(l, gl):
         return _sage_const_0 
 
     tau = (K(_sage_const_4 *ql).sqrt())
-    print(tau, ql, l)
+    #print(tau, ql, l)
     gamma = (K(_sage_const_2 *ql) * K(tau)**(-_sage_const_1 ))
-    print(gamma)
+    #print(gamma)
     if eigen(l, gamma, gl):
         return tau
     return -tau
@@ -220,7 +231,7 @@ def schoff():
     while B < _sage_const_4 *sqrt(selectedPrime):
         l = l.next_prime()
         totalMod *= l
-        print('starting ', l)
+        #print('starting ', l)
         B = B*l
         fl = getFPoly(l)
         sl = R(getSBarPoly(l))
@@ -229,28 +240,28 @@ def schoff():
         gl = R(fl).gcd(sl)
 
         if gl != _sage_const_1 :
-            print('equalx')
+            #print('equalx')
             tau = equalx(l, gl)
-            print('returned', tau)
+            #print('returned', tau)
         else:
-            print('not equal x')
+            #print('not equal x')
             r = _sage_const_0 
             tau = _sage_const_0 
             while r == _sage_const_0 :
                 tau += _sage_const_1 
                 r = nonequalx(l, tau)
-                print('r:', r)
+                #print('r:', r)
             if r == -_sage_const_1 :
                 tau = -tau
         
         residues.append(Integer(tau))
         moduli.append(Integer(l))
 
-    print(residues, moduli)
+    #print(residues, moduli)
     trace = crt(residues, moduli)
     if trace >= (totalMod/_sage_const_2 ):
         trace -= totalMod
-    print(trace)
+    #print(trace)
     return selectedPrime+_sage_const_1 -trace
 
 #trace is 14
