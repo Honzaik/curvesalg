@@ -14,7 +14,7 @@ b = _sage_const_1
 
 
 if len(sys.argv) != 4:
-    print('need 3 arguments [a,b,prime]')
+    print('need 4 arguments [a,b,prime]')
     exit()
 
 a = Integer(sys.argv[1])
@@ -39,6 +39,7 @@ DPolyCache = {}
 
 def getFPoly(m):
     toReturn = None
+
     if m in fPolyCache:
         return fPolyCache[m]
 
@@ -65,12 +66,13 @@ def getFPoly(m):
 
 def getSBarPoly(m):
     ql = selectedPrime % m
+    fl = getFPoly(m)
     if ql == _sage_const_1 :
-        return x**(selectedPrime**_sage_const_2 )-x
+        return expMod(x, Integer(selectedPrime**_sage_const_2 ), fl)-x
     if ql % _sage_const_2  == _sage_const_0 :
-        return _sage_const_4 *(x**(selectedPrime**_sage_const_2 )-x)*(x**_sage_const_3 +a*x+b)*getFPoly(ql)**_sage_const_2 +getFPoly(ql-_sage_const_1 )*getFPoly(ql+_sage_const_1 )
+        return _sage_const_4 *(expMod(x, Integer(selectedPrime**_sage_const_2 ), fl)-x)*(x**_sage_const_3 +a*x+b)*getFPoly(ql)**_sage_const_2 +getFPoly(ql-_sage_const_1 )*getFPoly(ql+_sage_const_1 )
     else:
-        return (x**(selectedPrime**_sage_const_2 )-x)*getFPoly(ql)**_sage_const_2 +(_sage_const_4 *(x**_sage_const_3 +a*x+b))*getFPoly(ql-_sage_const_1 )*getFPoly(ql+_sage_const_1 )
+        return (expMod(x, Integer(selectedPrime**_sage_const_2 ), fl)-x)*getFPoly(ql)**_sage_const_2 +(_sage_const_4 *(x**_sage_const_3 +a*x+b))*getFPoly(ql-_sage_const_1 )*getFPoly(ql+_sage_const_1 )
     
 
 def getRPoly(m):
@@ -178,10 +180,12 @@ def nonequalx(l, tau):
     #print('tau, m:', tau, m)
 
     fl = getFPoly(l)
-    cm = R(getCPoly(m))
-    dm = R(getDPoly(m))
-    rm = R(getRPoly(m))
-    sm = R(getSPoly(m))
+
+    if m > _sage_const_0 :
+        cm = R(getCPoly(m))
+        dm = R(getDPoly(m))
+        rm = R(getRPoly(m))
+        sm = R(getSPoly(m))
 
     ctau = R(getCPoly(tau))
     dtau = R(getDPoly(tau))
@@ -192,11 +196,14 @@ def nonequalx(l, tau):
 
     exponent = (selectedPrime**_sage_const_2  - _sage_const_1 )/_sage_const_2 
 
-    lam = y * (F(dm)/F(sm)) * (F(expMod(x**_sage_const_3  + a*x + b, Integer(exponent), fl) * sm - rm))/(F(dm * (expMod(x,Integer(selectedPrime**_sage_const_2 ), fl) - x) + cm))
+    if m > _sage_const_0 :
+        lam = y * (F(dm)/F(sm)) * (F(expMod(x**_sage_const_3  + a*x + b, Integer(exponent), fl) * sm - rm))/(F(dm * (expMod(x,Integer(selectedPrime**_sage_const_2 ), fl) - x) + cm))
 
-    firstX = F(lam**_sage_const_2  - expMod(x,Integer(selectedPrime**_sage_const_2 ), fl) - x) + (F(cm)/F(dm))
+        firstX = F(lam**_sage_const_2  - expMod(x,Integer(selectedPrime**_sage_const_2 ), fl) - x) + (F(cm)/F(dm))
+    else:
+        firstX = expMod(x,Integer(selectedPrime**_sage_const_2 ), fl)
 
-    secondX = F(x**selectedPrime) - (F(ctau(x=x**selectedPrime))/F(dtau(x=x**selectedPrime)))
+    secondX = F(expMod(x, Integer(selectedPrime), fl)) - (F(ctau(x=expMod(x, Integer(selectedPrime), fl)))/F(dtau(x=expMod(x, Integer(selectedPrime), fl))))
 
     hx = R((firstX - secondX).numerator()) % R(fl)
 
@@ -205,8 +212,12 @@ def nonequalx(l, tau):
     if firstGCD == _sage_const_1 :
         return _sage_const_0 
 
-    firstY = lam * (_sage_const_2  * expMod(x, Integer(selectedPrime**_sage_const_2 ), fl) - lam**_sage_const_2  + x - F(cm)/F(dm)) - expMod(y, Integer(selectedPrime**_sage_const_2 ), fl)
-    secondY = expMod(y, Integer(selectedPrime), fl) * F(rtau(x=x**selectedPrime))/F(stau(x=x**selectedPrime))
+    if m > _sage_const_0 :
+        firstY = lam * (_sage_const_2  * expMod(x, Integer(selectedPrime**_sage_const_2 ), fl) - lam**_sage_const_2  + x - F(cm)/F(dm)) - expMod(y, Integer(selectedPrime**_sage_const_2 ), fl)
+    else:
+        firstY = expMod(y,Integer(selectedPrime**_sage_const_2 ), fl)
+
+    secondY = expMod(y, Integer(selectedPrime), fl) * F(rtau(x=expMod(x, Integer(selectedPrime), fl)))/F(stau(x=expMod(x, Integer(selectedPrime), fl)))
 
     hy = R((firstY - secondY).numerator())(y=_sage_const_1 ) % R(fl)
     secondGCD = R(fl).gcd(hy)
@@ -234,7 +245,11 @@ def schoff():
         #print('starting ', l)
         B = B*l
         fl = getFPoly(l)
-        sl = R(getSBarPoly(l))
+
+        if selectedPrime % l == _sage_const_0 :
+            sl = _sage_const_1 
+        else:
+            sl = R(getSBarPoly(l))
 
         sl = sl % R(fl)
         gl = R(fl).gcd(sl)

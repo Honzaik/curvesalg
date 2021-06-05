@@ -33,6 +33,7 @@ DPolyCache = {}
 
 def getFPoly(m):
     toReturn = None
+
     if m in fPolyCache:
         return fPolyCache[m]
 
@@ -59,12 +60,13 @@ def getFPoly(m):
 
 def getSBarPoly(m):
     ql = selectedPrime % m
+    fl = getFPoly(m)
     if ql == 1:
-        return x**(selectedPrime**2)-x
+        return expMod(x, Integer(selectedPrime**2), fl)-x
     if ql % 2 == 0:
-        return 4*(x**(selectedPrime**2)-x)*(x**3+a*x+b)*getFPoly(ql)**2+getFPoly(ql-1)*getFPoly(ql+1)
+        return 4*(expMod(x, Integer(selectedPrime**2), fl)-x)*(x**3+a*x+b)*getFPoly(ql)**2+getFPoly(ql-1)*getFPoly(ql+1)
     else:
-        return (x**(selectedPrime**2)-x)*getFPoly(ql)**2+(4*(x**3+a*x+b))*getFPoly(ql-1)*getFPoly(ql+1)
+        return (expMod(x, Integer(selectedPrime**2), fl)-x)*getFPoly(ql)**2+(4*(x**3+a*x+b))*getFPoly(ql-1)*getFPoly(ql+1)
     
 
 def getRPoly(m):
@@ -172,10 +174,12 @@ def nonequalx(l, tau):
     #print('tau, m:', tau, m)
 
     fl = getFPoly(l)
-    cm = R(getCPoly(m))
-    dm = R(getDPoly(m))
-    rm = R(getRPoly(m))
-    sm = R(getSPoly(m))
+
+    if m > 0:
+        cm = R(getCPoly(m))
+        dm = R(getDPoly(m))
+        rm = R(getRPoly(m))
+        sm = R(getSPoly(m))
 
     ctau = R(getCPoly(tau))
     dtau = R(getDPoly(tau))
@@ -186,11 +190,14 @@ def nonequalx(l, tau):
 
     exponent = (selectedPrime**2 - 1)/2
 
-    lam = y * (F(dm)/F(sm)) * (F(expMod(x**3 + a*x + b, Integer(exponent), fl) * sm - rm))/(F(dm * (expMod(x,Integer(selectedPrime**2), fl) - x) + cm))
+    if m > 0:
+        lam = y * (F(dm)/F(sm)) * (F(expMod(x**3 + a*x + b, Integer(exponent), fl) * sm - rm))/(F(dm * (expMod(x,Integer(selectedPrime**2), fl) - x) + cm))
 
-    firstX = F(lam**2 - expMod(x,Integer(selectedPrime**2), fl) - x) + (F(cm)/F(dm))
+        firstX = F(lam**2 - expMod(x,Integer(selectedPrime**2), fl) - x) + (F(cm)/F(dm))
+    else:
+        firstX = expMod(x,Integer(selectedPrime**2), fl)
 
-    secondX = F(x**selectedPrime) - (F(ctau(x=x**selectedPrime))/F(dtau(x=x**selectedPrime)))
+    secondX = F(expMod(x, Integer(selectedPrime), fl)) - (F(ctau(x=expMod(x, Integer(selectedPrime), fl)))/F(dtau(x=expMod(x, Integer(selectedPrime), fl))))
 
     hx = R((firstX - secondX).numerator()) % R(fl)
 
@@ -199,8 +206,12 @@ def nonequalx(l, tau):
     if firstGCD == 1:
         return 0
 
-    firstY = lam * (2 * expMod(x, Integer(selectedPrime**2), fl) - lam**2 + x - F(cm)/F(dm)) - expMod(y, Integer(selectedPrime**2), fl)
-    secondY = expMod(y, Integer(selectedPrime), fl) * F(rtau(x=x**selectedPrime))/F(stau(x=x**selectedPrime))
+    if m > 0:
+        firstY = lam * (2 * expMod(x, Integer(selectedPrime**2), fl) - lam**2 + x - F(cm)/F(dm)) - expMod(y, Integer(selectedPrime**2), fl)
+    else:
+        firstY = expMod(y,Integer(selectedPrime**2), fl)
+
+    secondY = expMod(y, Integer(selectedPrime), fl) * F(rtau(x=expMod(x, Integer(selectedPrime), fl)))/F(stau(x=expMod(x, Integer(selectedPrime), fl)))
 
     hy = R((firstY - secondY).numerator())(y=1) % R(fl)
     secondGCD = R(fl).gcd(hy)
@@ -228,7 +239,11 @@ def schoff():
         #print('starting ', l)
         B = B*l
         fl = getFPoly(l)
-        sl = R(getSBarPoly(l))
+
+        if selectedPrime % l == 0:
+            sl = 1
+        else:
+            sl = R(getSBarPoly(l))
 
         sl = sl % R(fl)
         gl = R(fl).gcd(sl)
