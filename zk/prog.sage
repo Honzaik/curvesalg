@@ -1,7 +1,7 @@
 import sys
 from sage.all import *
 
-selectedPrime = 191
+selectedPrime = 25
 
 a = 2
 b = 1
@@ -19,11 +19,11 @@ selectedPrime = Integer(sys.argv[3])
 
 R.<x,y> = PolynomialRing(GF(selectedPrime),2,order='invlex')
 Q.<x,y> = QuotientRing(R,R.ideal(y**2 - x**3 -a*x -b))
-
+S.<o> = PolynomialRing(GF(selectedPrime)) #okruh pro testovani ireducibility
 
 def expMod(poly, exp, modu):
-    S.<s,t> = QuotientRing(Q, Q.ideal(modu)) #exp
-    return Q(S(poly)**exp)
+    S.<s,t> = QuotientRing(Q, Q.ideal(modu)) #vytvor okruh K[x,y]/(y**2-x**3-a*x-b, modu)
+    return Q(S(poly)**exp) #spocitej exp v něm
 
 fPolyCache = {}
 RPolyCache = {}
@@ -31,6 +31,7 @@ SPolyCache = {}
 CPolyCache = {}
 DPolyCache = {}
 
+#funkce pocita polynomy \bar{f}_m
 def getFPoly(m):
     toReturn = None
 
@@ -58,6 +59,7 @@ def getFPoly(m):
     fPolyCache[m] = toReturn
     return fPolyCache[m]
 
+#funkce pocita polynomy \bar{s}_m 
 def getSBarPoly(m):
     ql = selectedPrime % m
     fl = getFPoly(m)
@@ -69,6 +71,7 @@ def getSBarPoly(m):
         return (expMod(x, Integer(selectedPrime**2), fl)-x)*getFPoly(ql)**2+(4*(x**3+a*x+b))*getFPoly(ql-1)*getFPoly(ql+1)
     
 
+#funkce pocita polynomy r_m
 def getRPoly(m):
     if m in RPolyCache:
         return RPolyCache[m]
@@ -83,6 +86,7 @@ def getRPoly(m):
     RPolyCache[m] = toReturn
     return RPolyCache[m]
 
+#funkce pocita polynomy s_m
 def getSPoly(m):
     if m in SPolyCache:
         return SPolyCache[m]
@@ -96,6 +100,7 @@ def getSPoly(m):
     SPolyCache[m] = toReturn
     return SPolyCache[m]
 
+#funkce pocita polynomy c_m
 def getCPoly(m):
     if m in CPolyCache:
         return CPolyCache[m]
@@ -110,6 +115,7 @@ def getCPoly(m):
     CPolyCache[m] = toReturn
     return CPolyCache[m]
 
+#funkce pocita polynomy d_m
 def getDPoly(m):
     if m in DPolyCache:
         return DPolyCache[m]
@@ -124,32 +130,26 @@ def getDPoly(m):
     DPolyCache[m] = toReturn
     return DPolyCache[m]
 
+#kontrola jestli polyToTest je násobek f_l
 def tyzero(l, m):
     fl = getFPoly(l)
     exponent = (selectedPrime**2-1) / 2
     polyToTest = getSPoly(m) * expMod((x**3+a*x+b), Integer(exponent), fl) + getRPoly(m)
     res = R(polyToTest) % R(fl)
     return res == 0
-    
+
+#gl = gcd(sl, fl)
 def eigen(l, gamma, gl):
     if gl == 1:
         return False
 
     fl = getFPoly(l)
 
-    #print(gl)
-
-
-    #polyPart = getDPoly(Integer(gamma))*(x**selectedPrime) - x*getDPoly(Integer(gamma)) + getCPoly(Integer(gamma))
-    #glNew = R(fl).gcd(R(polyPart))
-    #print(glNew)
 
     exponent = (selectedPrime-1) / 2
     polyToTest = getSPoly(Integer(gamma)) * expMod((x**3 + a*x + b), Integer(exponent), fl) - getRPoly(Integer(gamma))
     res = R(polyToTest) % R(gl)
-    #print('gcd', R(gl).gcd(R(polyToTest)))
-    #res = R(glNew).gcd(R(polyToTest))
-    #print('eigen res:', res)
+
     return res == 0
     
 def equalx(l, gl):
@@ -160,9 +160,9 @@ def equalx(l, gl):
         return 0
 
     tau = (K(4*ql).sqrt())
-    #print(tau, ql, l)
+
     gamma = (K(2*ql) * K(tau)**(-1))
-    #print(gamma)
+
     if eigen(l, gamma, gl):
         return tau
     return -tau
@@ -171,11 +171,9 @@ def nonequalx(l, tau):
 
     m = selectedPrime % l
 
-    #print('tau, m:', tau, m)
-
     fl = getFPoly(l)
 
-    if m > 0:
+    if m > 0: #pokud je m=0 (nastane v pripade kdy q=selectedPrime je p^e, e > 1)
         cm = R(getCPoly(m))
         dm = R(getDPoly(m))
         rm = R(getRPoly(m))
@@ -202,7 +200,7 @@ def nonequalx(l, tau):
     hx = R((firstX - secondX).numerator()) % R(fl)
 
     firstGCD =  R(fl).gcd(hx)
-    #print('gcd 1:', firstGCD)
+
     if firstGCD == 1:
         return 0
 
@@ -214,8 +212,9 @@ def nonequalx(l, tau):
     secondY = expMod(y, Integer(selectedPrime), fl) * F(rtau(x=expMod(x, Integer(selectedPrime), fl)))/F(stau(x=expMod(x, Integer(selectedPrime), fl)))
 
     hy = R((firstY - secondY).numerator())(y=1) % R(fl)
+
     secondGCD = R(fl).gcd(hy)
-    #print('gcd 2:', secondGCD)
+
     if secondGCD == 1:
         return -1
     return 1
@@ -223,9 +222,8 @@ def nonequalx(l, tau):
 def schoff():
     B = 2
     l = 2
-    curvePoly = x**3+a*x+b
-    cycloPoly = x**selectedPrime - x
-    if R(curvePoly).gcd(R(cycloPoly)) == 1:
+    curvePoly = o**3+a*o+b
+    if curvePoly.is_irreducible() == 1:
         tau = 1
     else:
         tau = 0
@@ -236,11 +234,10 @@ def schoff():
     while B < 4*sqrt(selectedPrime):
         l = l.next_prime()
         totalMod *= l
-        #print('starting ', l)
         B = B*l
         fl = getFPoly(l)
 
-        if selectedPrime % l == 0:
+        if selectedPrime % l == 0: #ql = 0, phi^2 nikdy není zero isogeny.
             sl = 1
         else:
             sl = R(getSBarPoly(l))
@@ -249,30 +246,23 @@ def schoff():
         gl = R(fl).gcd(sl)
 
         if gl != 1:
-            #print('equalx')
             tau = equalx(l, gl)
-            #print('returned', tau)
         else:
-            #print('not equal x')
             r = 0
             tau = 0
             while r == 0:
                 tau += 1
                 r = nonequalx(l, tau)
-                #print('r:', r)
             if r == -1:
                 tau = -tau
         
         residues.append(Integer(tau))
         moduli.append(Integer(l))
 
-    #print(residues, moduli)
     trace = crt(residues, moduli)
-    if trace >= (totalMod/2):
+    if trace >= (totalMod/2): #stopa je v Z_totalMod, chceme ji převést do Z
         trace -= totalMod
-    #print(trace)
-    return selectedPrime+1-trace
 
-#trace is 14
+    return selectedPrime+1-trace
 
 print(schoff())
