@@ -1,7 +1,7 @@
 import sys
 from sage.all import *
 
-selectedPrime = 25
+selectedPrime = 149
 
 a = 2
 b = 1
@@ -156,14 +156,18 @@ def equalx(l, gl):
     K = GF(l) 
     ql = selectedPrime % l
 
-    if tyzero(l, ql):
+    if tyzero(l, ql): #true jestlize phi^2(P) = [-ql](P) pro P z E[l]*, poté t_l = 0
         return 0
+
+    #nyní phi^2(P) = [ql](P) pro nějaké P z E[l]*
 
     tau = (K(4*ql).sqrt())
 
+    #2 kandidáti na t_l => +-tau
+
     gamma = (K(2*ql) * K(tau)**(-1))
 
-    if eigen(l, gamma, gl):
+    if eigen(l, gamma, gl): #kontrola jestli phi(P) = [gamma](P) pro nějaké P z E[l]*, když false musí být phi(P) = [-gamma](P)
         return tau
     return -tau
     
@@ -223,7 +227,7 @@ def schoff():
     B = 2
     l = 2
     curvePoly = o**3+a*o+b
-    if curvePoly.is_irreducible() == 1:
+    if curvePoly.is_irreducible() == 1: #t_l = 0 <=> E[F_q] má involuci <=> x**3+a*x+b má kořen v F_q
         tau = 1
     else:
         tau = 0
@@ -243,16 +247,16 @@ def schoff():
             sl = R(getSBarPoly(l))
 
         sl = sl % R(fl)
-        gl = R(fl).gcd(sl)
+        gl = R(fl).gcd(sl) #gl != 1 <==> existuje P v E[l]* t.ž. phi^2(P) = [+-ql](P)
 
-        if gl != 1:
+        if gl != 1: #víme, že phi^2(P) = [+-ql](P) pro nějaké P v E[l]*
             tau = equalx(l, gl)
-        else:
+        else: #phi^2(P) != [+-ql](P) pro každé P z E[l]*, můžeme tedy použít vzorec pro součet různých bodů
             r = 0
             tau = 0
-            while r == 0:
+            while r == 0: #dokud r není +-1
                 tau += 1
-                r = nonequalx(l, tau)
+                r = nonequalx(l, tau) #testuje phi^2 + [ql] = [tau] pro různá tau > 0, tl != 0 jelikož phi^2(P) != [+-ql](P)
             if r == -1:
                 tau = -tau
         
